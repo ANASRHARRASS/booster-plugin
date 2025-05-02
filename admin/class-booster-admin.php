@@ -145,6 +145,16 @@ class Booster_Admin {
 			'sanitize_callback' => 'sanitize_text_field',
 			'default' => '',
 		]);
+		// Add settings for API keys in Booster_Admin
+        register_setting('booster_settings', 'booster_api_key_newsapi', [
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => '',
+        ]);
+        
+        register_setting('booster_settings', 'booster_api_key_currentsapi', [
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => '',
+]);
 		
         register_setting('booster_settings', 'booster_affiliate_keywords',[
 			'sanitize_callback' => 'sanitize_text_field',

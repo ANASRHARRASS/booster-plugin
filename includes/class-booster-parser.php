@@ -38,54 +38,39 @@
     /**
      * Normalize a response from a News API.
      */
-    private static function parse_news(array $response, string $type): array {
+    public static function parse_news(array $response, string $type): array {
         $results = [];
-        $articles = $response['articles'] ?? $response;
+        $articles = $response['articles'] ?? $response['news'] ?? [];
 
         foreach ($articles as $item) {
-            $title = trim($item['title'] ?? '');
-            $raw_content = trim($item['content'] ?? $item['body'] ?? $item['fullText'] ?? '');
-            $description = trim($item['description'] ?? '');
+            $title = $item['title'] ?? '';
+            $content = $item['content'] ?? $item['description'] ?? '';
+            $url = $item['url'] ?? '';
+            $image = $item['urlToImage'] ?? $item['image'] ?? '';
+            $source = $item['source']['name'] ?? 'Unknown Source';
+            $publishedAt = $item['publishedAt'] ?? $item['published'] ?? '';
 
-            if (empty($title)) {
-                Booster_Logger::log("[Booster_Parser] Skipped news item: missing title.");
-                continue;
-            }
-
-            $content = self::expand_content($title, self::clean_content($raw_content), $description);
-
-            if (empty($content) || str_word_count(strip_tags($content)) < 10) {
-                Booster_Logger::log("[Booster_Parser] Skipped news item '{$title}': content too short.");
-                continue;
-            }
-
-            $image = $item['urlToImage'] ?? $item['image'] ?? $item['thumbnail'] ?? '';
-            if (empty($image) && !empty($item['url'])) {
-                $image = Booster_Utils::fetch_open_graph_image($item['url']);
-            }
-
-            $url = $item['url'] ?? $item['link'] ?? '';
-
-            if (empty($url)) {
-                Booster_Logger::log("[Booster_Parser] Skipped news item '{$title}': missing URL.");
+            if (empty($title) || empty($url)) {
+                Booster_Logger::log("[Booster_Parser] Skipped news item: Missing title or URL.");
                 continue;
             }
 
             $results[] = [
                 'title'     => $title,
-                'content'   => $content,
+                'content'   => self::expand_content($title, self::clean_content($content)),
                 'url'       => $url,
                 'image'     => $image,
-                'category'  => $item['category'] ?? 'News',
-                'provider'  => 'newsapi',
+                'category'  => $item['category'][0] ?? 'News',
+                'source'    => $source,
+                'published' => $publishedAt,
                 'post_type' => 'post',
             ];
         }
 
         Booster_Logger::log("[Booster_Parser] Parsed " . count($results) . " valid news items.");
-
         return $results;
     }
+
 
     private static function clean_content(string $content): string {
         $content = preg_replace('/\[\+\d+\schars\]/', '', $content);
