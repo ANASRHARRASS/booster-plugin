@@ -1,0 +1,46 @@
+<?php
+
+
+class Booster_API_Runner {
+
+    /**
+     * Features:
+     *Works with any API configured through WPGetAPI
+     *
+     *Safe handling of non-function availability
+     *
+     *Logs errors (visible in error_log() or via a future admin log panel)
+     * Fetch data from a configured WPGetAPI endpoint.
+     *
+     * @param string $api_id       WPGetAPI API group ID (e.g., 'newsapi')
+     * @param string $endpoint_id  WPGetAPI endpoint ID (e.g., 'top-headlines')
+     * @return array|null          Raw API response (usually decoded JSON)
+     */
+    public static function fetch_from_wpgetapi($api_id, $endpoint_id, $args = []): ?array {
+        if (!function_exists('wpgetapi_endpoint')) {
+            Booster_Logger::log('[Booster] WPGetAPI not available.');
+            return null;
+        }
+        try{
+            $default_args = [
+                'args'  => array_merge(['timestamp' => time()], $args),
+                'debug' => false,
+            ];
+            $response = wpgetapi_endpoint($api_id, $endpoint_id, $default_args);
+    
+            if (empty($response) || !is_array($response)) {
+                throw new \RuntimeException("Empty or invalid response from $api_id/$endpoint_id.");
+            }
+    
+            return $response;
+        } catch (\Throwable $e) {
+                    Booster_Logger::log('[Booster] Error fetching from WPGetAPI: ' . $e->getMessage());
+                    return null;
+                }
+            }
+            
+        
+    
+        
+    
+}
