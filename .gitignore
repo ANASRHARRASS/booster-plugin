@@ -30,7 +30,13 @@ wp-config.php
 /wp-content/uploads/
 
 # Log files
+error_log
+
 *.log
+*.zip
+node_modules/
+vendor/
+.DS_STORE
 
 # htaccess
 /.htaccess
