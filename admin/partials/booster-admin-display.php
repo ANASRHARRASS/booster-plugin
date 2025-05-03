@@ -27,6 +27,24 @@
                 </td>
             </tr>
         </table>
+        <h2><?php _e('API Keys', 'booster'); ?></h2>
+        <table class="form-table">
+            <tr>
+                <th scope="row"><label for="booster_api_key_newsapi"><?php _e('NewsAPI Key', 'booster'); ?></label></th>
+                <td>
+                    <input type="text" name="booster_api_key_newsapi" id="booster_api_key_newsapi" value="<?php echo esc_attr(get_option('booster_api_key_newsapi', '')); ?>" class="regular-text" />
+                    <p class="description"><?php _e('Enter your NewsAPI key.', 'booster'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="booster_api_key_currentsapi"><?php _e('CurrentsAPI Key', 'booster'); ?></label></th>
+                <td>
+                    <input type="text" name="booster_api_key_currentsapi" id="booster_api_key_currentsapi" value="<?php echo esc_attr(get_option('booster_api_key_currentsapi', '')); ?>" class="regular-text" />
+                    <p class="description"><?php _e('Enter your CurrentsAPI key.', 'booster'); ?></p>
+                </td>
+            </tr>
+            
+        </table>
 
         <h2><?php _e('API Providers', 'booster'); ?></h2>
         <table class="widefat" id="booster-provider-table" style="margin-bottom: 20px;">

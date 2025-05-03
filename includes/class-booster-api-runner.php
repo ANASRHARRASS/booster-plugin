@@ -16,14 +16,8 @@ class Booster_API_Runner {
      * @param string $endpoint_id  WPGetAPI endpoint ID (e.g., 'top-headlines')
      * @return array|null          Raw API response (usually decoded JSON)
      */
-    
     public static function fetch_from_wpgetapi($api_id, $endpoint_id, $args = []): ?array {
-        $api_key = get_option('booster_api_key_newsapi');
-        if (empty($api_key)) {
-            Booster_Logger::log("[Booster] Missing API key for NewsAPI.");
-            return null; // Fixed
-        }
-    
+        // Check if WPGetAPI is active
         if (!function_exists('wpgetapi_endpoint')) {
             Booster_Logger::log('[Booster] WPGetAPI not available.');
             return null;
@@ -54,5 +48,6 @@ class Booster_API_Runner {
             return null;
         }
     }
+    
     
 }

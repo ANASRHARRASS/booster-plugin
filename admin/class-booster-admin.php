@@ -154,7 +154,7 @@ class Booster_Admin {
         register_setting('booster_settings', 'booster_api_key_currentsapi', [
             'sanitize_callback' => 'sanitize_text_field',
             'default' => '',
-]);
+        ]);
 		
         register_setting('booster_settings', 'booster_affiliate_keywords',[
 			'sanitize_callback' => 'sanitize_text_field',
@@ -165,6 +165,15 @@ class Booster_Admin {
 			'sanitize_callback' => 'esc_url_raw',
 			'default' => '',
 		]);
+
+
+        // Register settings for shipping rates or future sections
+        register_setting('booster_settings', 'booster_api_key_shipping', [
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => '',
+        ]);
+
+
     }
 	public static function sanitize_provider_list($input) {
 		if (!is_array($input)) return [];
