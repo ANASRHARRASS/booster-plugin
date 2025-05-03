@@ -17,6 +17,7 @@
         do_settings_sections('booster-settings');
         ?>
 
+        <!-- 🔧 AI Provider Section -->
         <h2><?php _e('AI Settings', 'booster'); ?></h2>
         <table class="form-table">
             <tr>
@@ -30,25 +31,27 @@
                 </td>
             </tr> 
         </table>
+
+        <!-- 🔑 API Keys Section -->
         <h2><?php _e('API Keys', 'booster'); ?></h2>    
         <table class="form-table">
             <tr>
                 <th scope="row"><label for="booster_api_key_newsapi"><?php _e('NewsAPI Key', 'booster'); ?></label></th>
                 <td>
-                    <input type="text" name="booster_api_key_newsapi" id="booster_api_key_newsapi" value="<?php echo esc_attr(get_option('booster_api_key_newsapi', '')); ?>" class="regular-text" />
+                    <input type="password" name="booster_api_key_newsapi" id="booster_api_key_newsapi" value="<?php echo esc_attr(Booster_Admin::decrypt_api_key(get_option('booster_api_key_newsapi', ''))); ?>" class="regular-text" />
                     <p class="description"><?php _e('Enter your NewsAPI key.', 'booster'); ?></p>
                 </td>
             </tr>
             <tr>
                 <th scope="row"><label for="booster_api_key_currentsapi"><?php _e('CurrentsAPI Key', 'booster'); ?></label></th>
                 <td>
-                    <input type="text" name="booster_api_key_currentsapi" id="booster_api_key_currentsapi" value="<?php echo esc_attr(get_option('booster_api_key_currentsapi', '')); ?>" class="regular-text" />
+                    <input type="password" name="booster_api_key_currentsapi" id="booster_api_key_currentsapi" value="<?php echo esc_attr(Booster_Admin::decrypt_api_key(get_option('booster_api_key_currentsapi', ''))); ?>" class="regular-text" />
                     <p class="description"><?php _e('Enter your CurrentsAPI key.', 'booster'); ?></p>
                 </td>
             </tr>
-
         </table>
 
+        <!-- 📡 API Providers Section -->
         <h2><?php _e('API Providers', 'booster'); ?></h2>
         <table class="widefat" id="booster-provider-table" style="margin-bottom: 20px;">
             <thead>
@@ -57,7 +60,6 @@
                     <th><?php _e('Endpoint ID', 'booster'); ?></th>
                     <th><?php _e('Content Type', 'booster'); ?></th>
                     <th><?php _e('Rewrite?', 'booster'); ?></th>
-
                     <th><?php _e('Actions', 'booster'); ?></th>
                 </tr>
             </thead>
@@ -85,7 +87,6 @@
 				                   <?php checked(!isset($row['rewrite']) || $row['rewrite']); ?> />
 			                   <?php _e('Rewrite', 'booster'); ?>
                             </label>
-
                         </td>
                         <td><button type="button" class="button booster-remove-row">×</button></td>
                     </tr>
@@ -94,10 +95,10 @@
         </table>
 
         <button type="button" class="button button-secondary" id="booster-add-provider"><?php _e('Add Provider', 'booster'); ?></button>
-
         <?php submit_button(__('Save All Settings', 'booster')); ?>
     </form>
 
+    <!-- 📥 Manual Import Section -->
     <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
         <h2><?php _e('Manual Import', 'booster'); ?></h2>
         <input type="hidden" name="action" value="booster_manual_import">
@@ -105,51 +106,39 @@
         <?php submit_button(__('Fetch Content Now', 'booster'), 'primary'); ?>
     </form>
 
-    <?php if (isset($_GET['fetch'])) : ?>
-        <div class="notice notice-<?php echo $_GET['fetch'] === 'success' ? 'success' : 'error'; ?>">
-            <p>
-                <?php if ($_GET['fetch'] === 'success') : ?>
-                    ✅ Fetched <?php echo intval($_GET['count']); ?> items.
-                <?php else : ?>
-                    ❌ Import failed. Check logs.
-                <?php endif; ?>
-            </p>
+    <!-- 🔍 Import Logs Section -->
+    <h2><?php _e('Import Logs', 'booster'); ?></h2>
+    <?php
+    $logs = class_exists('Booster_Logger') ? Booster_Logger::get_recent_logs(30) : [];
+
+    if (!empty($logs)) : ?>
+        <div style="background: #fff; border: 1px solid #ccd0d4; padding: 10px; max-height: 400px; overflow-y: auto;">
+            <ul style="list-style: none; margin: 0; padding: 0;">
+                <?php foreach ($logs as $log) : ?>
+                    <?php
+                    // Decide the log type based on keywords
+                    $color = '#333'; // Default text color
+                    if (stripos($log, '[ERROR]') !== false) {
+                        $color = '#dc3232'; // red
+                    } elseif (stripos($log, '[WARNING]') !== false) {
+                        $color = '#ffb900'; // yellow
+                    } elseif (stripos($log, '[SUCCESS]') !== false) {
+                        $color = '#46b450'; // green
+                    } elseif (stripos($log, '[DEBUG]') !== false) {
+                        $color = '#0073aa'; // blue
+                    }
+                    ?>
+                    <li style="padding: 4px 0; color: <?php echo esc_attr($color); ?>;">
+                        <?php echo esc_html($log); ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
         </div>
+    <?php else : ?>
+        <p><?php _e('No logs available.', 'booster'); ?></p>
     <?php endif; ?>
 
-    <h2><?php _e('Import Logs', 'booster'); ?></h2>
-
-<?php
-$logs = class_exists('Booster_Logger') ? Booster_Logger::get_recent_logs(30) : [];
-
-if (!empty($logs)) : ?>
-    <div style="background: #fff; border: 1px solid #ccd0d4; padding: 10px; max-height: 400px; overflow-y: auto;">
-        <ul style="list-style: none; margin: 0; padding: 0;">
-            <?php foreach ($logs as $log) : ?>
-                <?php
-                // Decide the log type based on keywords
-                $color = '#333'; // Default text color
-                if (stripos($log, '[ERROR]') !== false) {
-                    $color = '#dc3232'; // red
-                } elseif (stripos($log, '[WARNING]') !== false) {
-                    $color = '#ffb900'; // yellow
-                } elseif (stripos($log, '[SUCCESS]') !== false) {
-                    $color = '#46b450'; // green
-                } elseif (stripos($log, '[DEBUG]') !== false) {
-                    $color = '#0073aa'; // blue
-                }
-                ?>
-                <li style="padding: 4px 0; color: <?php echo esc_attr($color); ?>;">
-                    <?php echo esc_html($log); ?>
-                </li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-<?php else : ?>
-    <p><?php _e('No logs available.', 'booster'); ?></p>
-<?php endif; ?>
-
-
+    <!-- 🗑 Clear Logs Section -->
     <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
         <input type="hidden" name="action" value="booster_clear_logs" />
         <?php wp_nonce_field('booster_clear_logs'); ?>
