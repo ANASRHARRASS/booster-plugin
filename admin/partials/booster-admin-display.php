@@ -20,14 +20,17 @@
         <h2><?php _e('AI Settings', 'booster'); ?></h2>
         <table class="form-table">
             <tr>
-                <th scope="row"><label for="booster_openai_api_key"><?php _e('OpenAI API Key', 'booster'); ?></label></th>
+                <th scope="row"><label for="booster_ai_provider"><?php _e('AI Provider', 'booster'); ?></label></th>
                 <td>
-                    <input type="text" name="booster_openai_api_key" id="booster_openai_api_key" value="<?php echo esc_attr(get_option('booster_openai_api_key', '')); ?>" class="regular-text" />
-                    <p class="description"><?php _e('Paste your OpenAI API key to enable AI-powered features.', 'booster'); ?></p>
+                    <select name="booster_ai_provider" id="booster_ai_provider">
+                        <option value="huggingface" <?php selected(get_option('booster_ai_provider', 'huggingface'), 'huggingface'); ?>>Hugging Face</option>
+                        <option value="openai" <?php selected(get_option('booster_ai_provider', 'huggingface'), 'openai'); ?>>OpenAI</option>
+                    </select>
+                    <p class="description"><?php _e('Select your preferred AI provider.', 'booster'); ?></p>
                 </td>
-            </tr>
+            </tr> 
         </table>
-        <h2><?php _e('API Keys', 'booster'); ?></h2>
+        <h2><?php _e('API Keys', 'booster'); ?></h2>    
         <table class="form-table">
             <tr>
                 <th scope="row"><label for="booster_api_key_newsapi"><?php _e('NewsAPI Key', 'booster'); ?></label></th>
@@ -43,7 +46,7 @@
                     <p class="description"><?php _e('Enter your CurrentsAPI key.', 'booster'); ?></p>
                 </td>
             </tr>
-            
+
         </table>
 
         <h2><?php _e('API Providers', 'booster'); ?></h2>

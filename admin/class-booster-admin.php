@@ -172,6 +172,11 @@ class Booster_Admin {
             'sanitize_callback' => 'sanitize_text_field',
             'default' => '',
         ]);
+		// Register settings for AI provider
+		register_setting('booster_settings', 'booster_ai_provider', [
+			'sanitize_callback' => 'sanitize_text_field',
+			'default' => 'huggingface',
+		]);
 
 
     }
