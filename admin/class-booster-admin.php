@@ -140,10 +140,25 @@ class Booster_Admin {
 		register_setting('booster_settings', 'booster_provider_list',[
 			'sanitize_callback' => [self::class,'sanitize_provider_list'],
 			'default' => [],
-		]);	
+		]);
+		// Register settings for AI provider
+		register_setting('booster_settings', 'booster_ai_provider', [
+			'sanitize_callback' => 'sanitize_text_field',
+			'default' => 'huggingface',
+		]);
 		register_setting('booster_settings', 'booster_openai_api_key', [
 			'sanitize_callback' => 'sanitize_text_field',
 			'default' => '',
+		]);
+		register_setting('booster_settings', 'booster_huggingface_api_key', [
+			'sanitize_callback' => 'sanitize_text_field',
+			'default' => '',
+		]);
+		
+		// Register settings for content rewrite
+		register_setting('booster_settings', 'booster_rewrite_content', [
+			'sanitize_callback' => 'sanitize_text_field',
+			'default' => '1',
 		]);
 		// Add settings for API keys in Booster_Admin
         register_setting('booster_settings', 'booster_api_key_newsapi', [
@@ -172,11 +187,7 @@ class Booster_Admin {
             'sanitize_callback' => 'sanitize_text_field',
             'default' => '',
         ]);
-		// Register settings for AI provider
-		register_setting('booster_settings', 'booster_ai_provider', [
-			'sanitize_callback' => 'sanitize_text_field',
-			'default' => 'huggingface',
-		]);
+
 
 
     }
