@@ -36,6 +36,21 @@
         <h2><?php _e('API Keys', 'booster'); ?></h2>    
         <table class="form-table">
             <tr>
+                <th scope="row"><label for="booster_api_key_openai"><?php _e('OpenAI Key', 'booster'); ?></label></th>
+                <td>
+                    <input type="password" name="booster_api_key_openai" id="booster_api_key_openai" value="<?php echo esc_attr(Booster_Admin::decrypt_api_key(get_option('booster_api_key_openai', ''))); ?>" class="regular-text" />
+                    <p class="description"><?php _e('Enter your OpenAI key.', 'booster'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="booster_api_key_huggingface"><?php _e('Hugging Face Key', 'booster'); ?></label></th>
+                <td>
+                    <input type="password" name="booster_api_key_huggingface" id="booster_api_key_huggingface" value="<?php echo esc_attr(Booster_Admin::decrypt_api_key(get_option('booster_api_key_huggingface', ''))); ?>" class="regular-text" />
+                    <p class="description"><?php _e('Enter your Hugging Face key.', 'booster'); ?></p>
+                </td>
+            </tr>
+            
+            <tr>
                 <th scope="row"><label for="booster_api_key_newsapi"><?php _e('NewsAPI Key', 'booster'); ?></label></th>
                 <td>
                     <input type="password" name="booster_api_key_newsapi" id="booster_api_key_newsapi" value="<?php echo esc_attr(Booster_Admin::decrypt_api_key(get_option('booster_api_key_newsapi', ''))); ?>" class="regular-text" />

@@ -33,7 +33,7 @@ class Booster_AI {
         $api_key = get_option('booster_huggingface_api_key');
         
         if (empty($api_key)) {
-            Booster_Logger::log("[Booster_AI] Missing Hugging Face API key.");
+            Booster_Logger::log("[Booster_AI] Missing Hugging Face API key. Skipping rewrite.");
             return null;
         }
 
