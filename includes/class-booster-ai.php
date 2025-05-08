@@ -2,19 +2,17 @@
 
 class Booster_AI {
     /**
-     * Rewrite content using the configured AI provider.
+     * Main AI rewrite method to handle multiple providers.
+     *
      * @param string $original The original content to be rewritten.
      * @return string|null The rewritten content or null if an error occurs.
-     * @throws Exception If the API key is invalid or the request fails.
      */
+    public static function rewrite_content(string $original): ?string {
+        $provider = get_option('booster_ai_provider', 'huggingface');
+        if (!is_string($provider)) {
+            $provider = 'huggingface';
+        }
 
-  
-    /**
-     * Main AI rewrite method to handle multiple providers.
-     */
-    public static function rewrite_content($original) {
-        // Get the preferred AI provider from plugin settings
-        $provider = get_option('booster_ai_provider', 'huggingface'); // Default to Hugging Face
 
         if ($provider === 'openai') {
             return self::rewrite_content_with_openai($original);
@@ -22,23 +20,33 @@ class Booster_AI {
             return self::rewrite_content_with_huggingface($original);
         }
 
-        Booster_Logger::log("[Booster_AI] Unsupported AI provider: $provider");
+        Booster_Logger::log("[Booster_AI] Unsupported AI provider: {$provider}");
         return null;
     }
 
     /**
      * Rewrite content using Hugging Face.
+     *
+     * @param string $original
+     * @return string|null
      */
-    public static function rewrite_content_with_huggingface($original) {
+    public static function rewrite_content_with_huggingface(string $original): ?string {
         $api_key = get_option('booster_huggingface_api_key');
-        
+        if (!is_string($api_key)) {
+            $api_key = '';
+        }
+
         if (empty($api_key)) {
             Booster_Logger::log("[Booster_AI] Missing Hugging Face API key. Skipping rewrite.");
             return null;
         }
 
         $endpoint = "https://api-inference.huggingface.co/models/t5-small";
-        $body = json_encode(['inputs' => "Rewrite the following content: $original"]);
+        $body = json_encode(['inputs' => "Rewrite the following content: {$original}"]);
+        if ($body === false) {
+            Booster_Logger::log('[Booster_AI] Failed to encode JSON body.');
+            return null;
+        }
 
         $response = wp_remote_post($endpoint, [
             'headers' => [
@@ -55,14 +63,24 @@ class Booster_AI {
         }
 
         $json = json_decode(wp_remote_retrieve_body($response), true);
-        return $json[0]['generated_text'] ?? null;
+        if (is_array($json) && isset($json[0]['generated_text']) && is_string($json[0]['generated_text'])) {
+            return $json[0]['generated_text'];
+        }
+        Booster_Logger::log('[Booster_AI] Hugging Face response missing generated_text.');
+        return null;
     }
 
     /**
      * Rewrite content using OpenAI.
+     *
+     * @param string $original
+     * @return string|null
      */
-    public static function rewrite_content_with_openai($original) {
+    public static function rewrite_content_with_openai(string $original): ?string {
         $api_key = get_option('booster_openai_api_key');
+        if (!is_string($api_key)) {
+            $api_key = '';
+        }
 
         if (empty($api_key)) {
             Booster_Logger::log("[Booster_AI] Missing OpenAI API key.");
@@ -74,11 +92,15 @@ class Booster_AI {
             'model' => 'gpt-3.5-turbo',
             'messages' => [
                 ['role' => 'system', 'content' => 'You are a helpful content editor.'],
-                ['role' => 'user', 'content' => "Rewrite the following content: $original"],
+                ['role' => 'user', 'content' => "Rewrite the following content: {$original}"],
             ],
             'temperature' => 0.7,
             'max_tokens' => 1000,
         ]);
+        if ($body === false) {
+            Booster_Logger::log('[Booster_AI] Failed to encode JSON body.');
+            return null;
+        }
 
         $response = wp_remote_post($endpoint, [
             'headers' => [
@@ -95,9 +117,23 @@ class Booster_AI {
         }
 
         $json = json_decode(wp_remote_retrieve_body($response), true);
-        return $json['choices'][0]['message']['content'] ?? null;
+        if (
+            is_array($json)
+            && isset($json['choices'][0]['message']['content'])
+            && is_string($json['choices'][0]['message']['content'])
+        ) {
+            return $json['choices'][0]['message']['content'];
+        }
+        Booster_Logger::log('[Booster_AI] OpenAI response missing content.');
+        return null;
     }
 
+    /**
+     * Get the appropriate prompt for the content.
+     *
+     * @param string $content
+     * @return string
+     */
     public static function get_prompt(string $content): string {
         if (str_word_count(strip_tags($content)) < 100) {
             Booster_Logger::log("[Booster_AI] Using expansion prompt for short content");
@@ -108,7 +144,10 @@ class Booster_AI {
     }
 
     /**
-     * Fallback: Expand content locally without AI if needed
+     * Fallback: Expand content locally without AI if needed.
+     *
+     * @param string $content
+     * @return string
      */
     public static function expand_content_locally(string $content): string {
         Booster_Logger::log("[Booster_AI] Expanding content locally (no OpenAI)");
@@ -124,5 +163,3 @@ class Booster_AI {
         return $content;
     }
 }
-
-

@@ -98,7 +98,10 @@ add_action('init', function(){
 		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		deactivate_plugins(plugin_basename(__FILE__));
 		add_action('admin_notices', function() {
-			sprintf(__('<div class="notice notice-error"><p>Booster requires <strong>WPGetAPI</strong>. <a href="%s">Install it now</a>.</p></div>', 'booster'), esc_url(admin_url('plugin-install.php?s=wpgetapi&tab=search&type=term')));
+			echo sprintf(
+				__('<div class="notice notice-error"><p>Booster requires <strong>WPGetAPI</strong>. <a href="%s">Install it now</a>.</p></div>', 'booster'),
+				esc_url(admin_url('plugin-install.php?s=wpgetapi&tab=search&type=term'))
+			);
 		});
 	}
 });
